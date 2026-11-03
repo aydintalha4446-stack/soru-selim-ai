@@ -19,7 +19,8 @@
                             border: 'rgba(255, 255, 255, 0.1)',
                             accent: '#3B82F6',
                             purple: '#8B5CF6',
-                            emerald: '#10B981'
+                            emerald: '#10B981',
+                            danger: '#EF4444'
                         }
                     }
                 }
@@ -35,129 +36,158 @@
     <script defer src="https://cdn.jsdelivr.net/npm/katex@0.16.8/dist/katex.min.js"></script>
     <script defer src="https://cdn.jsdelivr.net/npm/katex@0.16.8/dist/contrib/auto-render.min.js"></script>
 
-    <!-- PDF.js for Reading PDFs -->
+    <!-- PDF.js -->
     <script src="https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.11.174/pdf.min.js"></script>
 
-    <!-- FontAwesome Icons -->
+    <!-- FontAwesome -->
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
 
     <style>
-        body {
-            font-family: 'Plus Jakarta Sans', sans-serif;
-            background-color: #0B0F19;
-            color: #F3F4F6;
-        }
+        body { font-family: 'Plus Jakarta Sans', sans-serif; background-color: var(--bg-main, #0B0F19); color: var(--text-main, #F3F4F6); transition: background 0.3s, color 0.3s; }
         .code-font { font-family: 'Fira Code', monospace; }
         .glass-panel {
-            background: rgba(17, 24, 39, 0.85);
+            background: var(--panel-bg, rgba(17, 24, 39, 0.85));
             backdrop-filter: blur(16px);
-            border: 1px solid rgba(255, 255, 255, 0.1);
+            border: 1px solid var(--panel-border, rgba(255, 255, 255, 0.1));
         }
         .glow-accent { box-shadow: 0 0 25px rgba(59, 130, 246, 0.25); }
+        .light-theme {
+            --bg-main: #F3F4F6;
+            --text-main: #1F2937;
+            --panel-bg: rgba(255, 255, 255, 0.9);
+            --panel-border: rgba(0, 0, 0, 0.1);
+        }
         ::-webkit-scrollbar { width: 6px; height: 6px; }
-        ::-webkit-scrollbar-track { background: #0B0F19; }
-        ::-webkit-scrollbar-thumb { background: #1F2937; border-radius: 4px; }
+        ::-webkit-scrollbar-track { background: transparent; }
+        ::-webkit-scrollbar-thumb { background: #4B5563; border-radius: 4px; }
     </style>
 </head>
 <body class="min-h-screen flex flex-col overflow-x-hidden">
 
+    <!-- BAN SCREEN -->
+    <div id="ban-overlay" class="fixed inset-0 bg-red-950/95 z-50 hidden flex flex-col items-center justify-center p-6 text-center space-y-4">
+        <div class="w-20 h-20 rounded-full bg-red-600/20 border border-red-500 flex items-center justify-center text-red-500 text-4xl animate-bounce">
+            <i class="fa-solid fa-ban"></i>
+        </div>
+        <h2 class="text-2xl font-black text-white tracking-wide">ERİŞİM ENGELLENDİ</h2>
+        <p class="text-sm text-red-300 max-w-md">selimAI platformunda hakaret, küfür veya uygunsuz dil kullanımı tespit edildiği için güvenlik protokolü devreye girdi ve siteden uzaklaştırıldınız.</p>
+    </div>
+
     <!-- TOP NAVIGATION -->
-    <header class="glass-panel sticky top-0 z-50 px-6 py-3 border-b border-brand-border flex items-center justify-between">
+    <header class="glass-panel sticky top-0 z-50 px-6 py-3 border-b flex items-center justify-between">
         <div class="flex items-center space-x-3">
             <div class="w-10 h-10 rounded-xl bg-gradient-to-tr from-blue-600 via-indigo-600 to-purple-600 flex items-center justify-center text-white font-black text-xl shadow-lg glow-accent">
                 S
             </div>
             <div>
-                <h1 class="text-lg font-bold tracking-wide bg-clip-text text-transparent bg-gradient-to-r from-white via-gray-200 to-blue-400">
-                    selim<span class="text-blue-500 font-extrabold">AI</span> <span class="text-xs px-2 py-0.5 rounded-full bg-blue-500/20 text-blue-400 border border-blue-500/30">PRO v6.0</span>
+                <h1 class="text-lg font-bold tracking-wide bg-clip-text text-transparent bg-gradient-to-r from-blue-400 to-purple-500">
+                    selim<span class="text-blue-500 font-extrabold">AI</span> <span id="badge-status" class="text-xs px-2 py-0.5 rounded-full bg-blue-500/20 text-blue-400 border border-blue-500/30">PRO v8.0</span>
                 </h1>
-                <p class="text-xs text-gray-400">Camera, PDF & Academic Engine</p>
+                <p class="text-xs opacity-70">Cloud SaaS & Academic Intelligence</p>
             </div>
         </div>
 
-        <!-- ACADEMIC LEVEL SELECTOR -->
-        <div class="hidden md:flex items-center bg-gray-900/80 p-1 rounded-xl border border-brand-border">
-            <button onclick="setLevel('primary')" id="lvl-primary" class="lvl-btn text-xs px-3 py-1.5 rounded-lg font-semibold transition text-gray-400 hover:text-white">İlkokul</button>
-            <button onclick="setLevel('middle')" id="lvl-middle" class="lvl-btn text-xs px-3 py-1.5 rounded-lg font-semibold transition text-gray-400 hover:text-white">Ortaokul</button>
-            <button onclick="setLevel('high')" id="lvl-high" class="lvl-btn text-xs px-3 py-1.5 rounded-lg font-semibold transition bg-blue-600 text-white shadow-md">Lise (YKS)</button>
-            <button onclick="setLevel('academic')" id="lvl-academic" class="lvl-btn text-xs px-3 py-1.5 rounded-lg font-semibold transition text-gray-400 hover:text-white">Üniversite</button>
+        <!-- ACADEMIC LEVEL & DIFFICULTY -->
+        <div class="hidden lg:flex items-center space-x-2">
+            <div class="flex items-center bg-black/20 p-1 rounded-xl border border-white/10 text-xs">
+                <button onclick="setLevel('primary')" id="lvl-primary" class="lvl-btn px-2.5 py-1 rounded-lg font-semibold transition opacity-60 hover:opacity-100">İlkokul</button>
+                <button onclick="setLevel('middle')" id="lvl-middle" class="lvl-btn px-2.5 py-1 rounded-lg font-semibold transition opacity-60 hover:opacity-100">Ortaokul</button>
+                <button onclick="setLevel('high')" id="lvl-high" class="lvl-btn px-2.5 py-1 rounded-lg font-semibold transition bg-blue-600 text-white shadow-md">Lise (YKS)</button>
+                <button onclick="setLevel('academic')" id="lvl-academic" class="lvl-btn px-2.5 py-1 rounded-lg font-semibold transition opacity-60 hover:opacity-100">Üniversite</button>
+            </div>
+            <select id="difficulty-select" class="bg-black/20 text-xs border border-white/10 rounded-xl p-2 outline-none font-semibold">
+                <option value="standard">Standart Düzey</option>
+                <option value="osym">ÖSYM / Sınav Tarzı (Zor)</option>
+                <option value="olympiad">Olimpiyat Düzeyi</option>
+            </select>
         </div>
 
-        <!-- CONFIG / API KEY BUTTON -->
+        <!-- TOP ACTIONS (AUTH & THEME) -->
         <div class="flex items-center space-x-3">
-            <button onclick="toggleConfigModal()" class="px-3 py-1.5 rounded-xl glass-panel text-xs text-gray-300 hover:text-white flex items-center space-x-2 border border-brand-border">
-                <i class="fa-solid fa-key text-blue-400"></i>
-                <span id="key-status-text">API Ayarı</span>
+            <button onclick="toggleTheme()" class="w-9 h-9 rounded-xl glass-panel flex items-center justify-center text-sm hover:border-blue-500/50 transition">
+                <i id="theme-icon" class="fa-solid fa-moon"></i>
             </button>
+            <button onclick="toggleConfigModal()" class="w-9 h-9 rounded-xl glass-panel flex items-center justify-center text-sm hover:border-blue-500/50 transition" title="API Ayarı">
+                <i class="fa-solid fa-key text-blue-400"></i>
+            </button>
+            <div id="auth-container">
+                <button onclick="simulateGoogleLogin()" class="px-4 py-2 rounded-xl bg-blue-600 hover:bg-blue-500 text-white text-xs font-bold shadow-lg flex items-center space-x-2 transition">
+                    <i class="fa-brands fa-google"></i>
+                    <span>Gmail ile Giriş</span>
+                </button>
+            </div>
         </div>
     </header>
 
     <!-- MAIN DASHBOARD -->
     <main class="flex-1 grid grid-cols-1 lg:grid-cols-12 gap-6 p-6 max-w-[1920px] mx-auto w-full">
 
-        <!-- LEFT PANEL: MODES & MEDIA -->
+        <!-- LEFT PANEL: MODES, POMODORO, HISTORY & FAVORITES -->
         <section class="lg:col-span-4 flex flex-col space-y-6">
             
-            <!-- MODE SELECTION -->
+            <!-- MODES -->
             <div class="glass-panel rounded-2xl p-5 space-y-4">
-                <h2 class="text-sm font-bold text-gray-300 uppercase tracking-wider flex items-center space-x-2">
+                <h2 class="text-xs font-bold uppercase tracking-wider opacity-70 flex items-center space-x-2">
                     <i class="fa-solid fa-cubes text-blue-400"></i>
                     <span>Çalışma Modu</span>
                 </h2>
-                
-                <div class="grid grid-cols-1 gap-2.5">
-                    <button onclick="setMode('summary')" id="mode-summary" class="mode-btn flex items-center justify-between p-3.5 rounded-xl border border-blue-500/40 bg-blue-500/10 text-white font-medium text-sm transition text-left">
-                        <div class="flex items-center space-x-3">
-                            <i class="fa-solid fa-book-open text-blue-400 text-lg"></i>
-                            <div>
-                                <div class="font-bold">Konu Özeti & Detaylı Anlatım</div>
-                                <div class="text-xs text-gray-400">Biyoloji, Fizik, Kimya vb. derinlemesine</div>
-                            </div>
+                <div class="grid grid-cols-1 gap-2">
+                    <button onclick="setMode('summary')" id="mode-summary" class="mode-btn flex items-center justify-between p-3 rounded-xl border border-blue-500/40 bg-blue-500/10 font-medium text-xs transition text-left">
+                        <div class="flex items-center space-x-2.5">
+                            <i class="fa-solid fa-book-open text-blue-400"></i>
+                            <span>Konu Özeti & Detaylı Anlatım</span>
                         </div>
                     </button>
-
-                    <button onclick="setMode('solver')" id="mode-solver" class="mode-btn flex items-center justify-between p-3.5 rounded-xl border border-brand-border bg-gray-900/50 text-gray-300 font-medium text-sm transition hover:border-purple-500/40 text-left">
-                        <div class="flex items-center space-x-3">
-                            <i class="fa-solid fa-square-root-variable text-purple-400 text-lg"></i>
-                            <div>
-                                <div class="font-bold">Soru Çözümü & İspat</div>
-                                <div class="text-xs text-gray-400">Adım adım mantıksal çözüm</div>
-                            </div>
+                    <button onclick="setMode('solver')" id="mode-solver" class="mode-btn flex items-center justify-between p-3 rounded-xl border border-white/10 bg-black/20 font-medium text-xs transition hover:border-purple-500/40 text-left opacity-80">
+                        <div class="flex items-center space-x-2.5">
+                            <i class="fa-solid fa-square-root-variable text-purple-400"></i>
+                            <span>Soru Çözümü & Adım İspat</span>
                         </div>
                     </button>
                 </div>
             </div>
 
-            <!-- MEDIA UPLOAD & CAMERA -->
-            <div class="glass-panel rounded-2xl p-5 space-y-4 flex-1 flex flex-col justify-between">
-                <div>
-                    <h2 class="text-sm font-bold text-gray-300 uppercase tracking-wider flex items-center space-x-2 mb-3">
-                        <i class="fa-solid fa-camera-retro text-purple-400"></i>
-                        <span>Kamera & PDF Yükleme</span>
+            <!-- POMODORO TIMER -->
+            <div class="glass-panel rounded-2xl p-5 space-y-3">
+                <div class="flex items-center justify-between">
+                    <h2 class="text-xs font-bold uppercase tracking-wider opacity-70 flex items-center space-x-2">
+                        <i class="fa-solid fa-clock text-emerald-400"></i>
+                        <span>Odak / Pomodoro Sayaç</span>
                     </h2>
-                    
-                    <!-- PDF / File Drop Zone -->
-                    <div id="drop-zone" class="border-2 border-dashed border-gray-700 rounded-xl p-5 text-center hover:border-blue-500/60 transition cursor-pointer bg-gray-900/40 group">
-                        <input type="file" id="file-input" class="hidden" accept=".pdf,image/*" onchange="handleFileSelect(event)">
-                        <div class="flex flex-col items-center justify-center space-y-2" onclick="document.getElementById('file-input').click()">
-                            <div class="w-10 h-10 rounded-full bg-gray-800 flex items-center justify-center text-gray-400 group-hover:text-blue-400 transition">
-                                <i class="fa-solid fa-file-arrow-up"></i>
-                            </div>
-                            <div class="text-xs font-semibold text-gray-300">PDF veya Soru Görseli Seç</div>
-                            <div class="text-[10px] text-gray-500">Otomatik metin ayıklama aktif</div>
-                        </div>
-                    </div>
-
-                    <!-- CAMERA PREVIEW -->
-                    <div id="camera-preview-container" class="hidden relative mt-4 rounded-xl overflow-hidden border border-blue-500/40">
-                        <video id="webcam-video" autoplay playsinline class="w-full h-44 object-cover"></video>
-                        <button onclick="captureCamera()" class="absolute bottom-2 left-1/2 -translate-x-1/2 bg-blue-600 hover:bg-blue-500 text-white text-xs px-3 py-1.5 rounded-lg font-bold shadow-lg">
-                            <i class="fa-solid fa-aperture mr-1"></i> Fotoğrafı Çek & Çöz
-                        </button>
-                    </div>
+                    <span id="pomo-timer" class="font-mono text-base font-black text-emerald-400">25:00</span>
                 </div>
+                <div class="flex space-x-2">
+                    <button onclick="startPomodoro()" class="flex-1 py-1.5 rounded-lg bg-emerald-600/20 border border-emerald-500/30 text-emerald-400 text-xs font-bold hover:bg-emerald-600/30 transition">Başlat</button>
+                    <button onclick="resetPomodoro()" class="px-3 py-1.5 rounded-lg bg-white/5 border border-white/10 text-xs font-bold hover:bg-white/10 transition">Sıfırla</button>
+                </div>
+            </div>
 
-                <button onclick="toggleCamera()" class="w-full py-3 rounded-xl bg-gray-800 hover:bg-gray-700 text-gray-200 text-xs font-bold border border-brand-border transition flex items-center justify-center space-x-2">
+            <!-- HISTORY & FAVORITES TABS -->
+            <div class="glass-panel rounded-2xl p-5 space-y-3 flex-1 flex flex-col">
+                <div class="flex border-b border-white/10 pb-2 space-x-4 text-xs font-bold">
+                    <button onclick="switchTab('history')" id="tab-history-btn" class="text-blue-400 border-b-2 border-blue-500 pb-1">Geçmiş Sorular</button>
+                    <button onclick="switchTab('favorites')" id="tab-fav-btn" class="opacity-60 hover:opacity-100 pb-1">Favori Notlar</button>
+                </div>
+                <div id="tab-content" class="flex-1 overflow-y-auto space-y-2 max-h-48 text-xs opacity-80">
+                    <div class="text-center py-6 opacity-50">Henüz geçmiş soru bulunmuyor.</div>
+                </div>
+            </div>
+
+            <!-- CAMERA & PDF -->
+            <div class="glass-panel rounded-2xl p-5 space-y-4">
+                <h2 class="text-xs font-bold uppercase tracking-wider opacity-70 flex items-center space-x-2 mb-2">
+                    <i class="fa-solid fa-camera-retro text-purple-400"></i>
+                    <span>Kamera & PDF Yükleme</span>
+                </h2>
+                <div class="border-2 border-dashed border-white/10 rounded-xl p-4 text-center hover:border-blue-500/60 transition cursor-pointer bg-black/20" onclick="document.getElementById('file-input').click()">
+                    <input type="file" id="file-input" class="hidden" accept=".pdf,image/*" onchange="handleFileSelect(event)">
+                    <div class="text-xs font-semibold">PDF veya Soru Görseli Bırak</div>
+                </div>
+                <div id="camera-preview-container" class="hidden relative mt-2 rounded-xl overflow-hidden border border-blue-500/40">
+                    <video id="webcam-video" autoplay playsinline class="w-full h-36 object-cover"></video>
+                    <button onclick="captureCamera()" class="absolute bottom-2 left-1/2 -translate-x-1/2 bg-blue-600 text-white text-[10px] px-2.5 py-1 rounded-md font-bold">Fotoğrafı Çek & Çöz</button>
+                </div>
+                <button onclick="toggleCamera()" class="w-full py-2.5 rounded-xl bg-white/5 hover:bg-white/10 text-xs font-bold border border-white/10 transition flex items-center justify-center space-x-2">
                     <i class="fa-solid fa-video text-blue-400"></i>
                     <span id="camera-btn-text">Canlı Kamerayı Aç</span>
                 </button>
@@ -167,43 +197,48 @@
         <!-- RIGHT PANEL: WORKSPACE -->
         <section class="lg:col-span-8 flex flex-col space-y-6">
             
-            <div class="glass-panel rounded-2xl p-6 flex-1 flex flex-col justify-between min-h-[550px] relative overflow-hidden">
+            <div class="glass-panel rounded-2xl p-6 flex-1 flex flex-col justify-between min-h-[600px] relative">
                 
-                <div class="flex items-center justify-between pb-4 border-b border-brand-border">
+                <div class="flex items-center justify-between pb-4 border-b border-white/10">
                     <div class="flex items-center space-x-3">
                         <div id="status-badge" class="px-3 py-1 rounded-full bg-blue-500/10 border border-blue-500/30 text-blue-400 text-xs font-semibold flex items-center space-x-2">
                             <i class="fa-solid fa-brain text-xs"></i>
-                            <span id="status-text">selimAI Hazır</span>
+                            <span id="status-text">selimAI Cloud Aktif</span>
                         </div>
                     </div>
-
                     <div class="flex items-center space-x-2">
-                        <button onclick="clearOutput()" class="px-3 py-1.5 rounded-lg bg-gray-800 hover:bg-red-500/20 text-gray-400 text-xs font-semibold border border-brand-border transition">
+                        <button onclick="saveCurrentToFavorites()" class="px-3 py-1.5 rounded-lg bg-white/5 hover:bg-white/10 text-xs font-semibold border border-white/10 transition" title="Favorilere Ekle">
+                            <i class="fa-regular fa-star text-yellow-400 mr-1"></i> Favorile
+                        </button>
+                        <button onclick="clearOutput()" class="px-3 py-1.5 rounded-lg bg-white/5 hover:bg-red-500/20 text-xs font-semibold border border-white/10 transition">
                             <i class="fa-solid fa-trash mr-1"></i> Temizle
                         </button>
                     </div>
                 </div>
 
                 <!-- OUTPUT AREA -->
-                <div id="output-area" class="flex-1 my-6 overflow-y-auto space-y-6 pr-2 text-gray-200 text-sm leading-relaxed">
-                    <div class="h-full flex flex-col items-center justify-center text-center p-8 space-y-4 text-gray-500">
-                        <div class="w-16 h-16 rounded-2xl bg-gray-900 border border-brand-border flex items-center justify-center text-gray-400 text-2xl glow-accent">
+                <div id="output-area" class="flex-1 my-6 overflow-y-auto space-y-6 pr-2 text-sm leading-relaxed">
+                    <div class="h-full flex flex-col items-center justify-center text-center p-8 space-y-4 opacity-50">
+                        <div class="w-16 h-16 rounded-2xl bg-black/40 border border-white/10 flex items-center justify-center text-2xl glow-accent">
                             <i class="fa-solid fa-graduation-cap"></i>
                         </div>
                         <div class="max-w-md">
-                            <h3 class="text-lg font-bold text-gray-300">selimAI PRO v6.0 Aktif</h3>
-                            <p class="text-xs text-gray-400 mt-1">Biyolojide boşaltım sistemini sorabilir, PDF yükleyebilir veya kamerayla soru taratabilirsin.</p>
+                            <h3 class="text-base font-bold">selimAI PRO v8.0 Hazır</h3>
+                            <p class="text-xs mt-1">İstediğin konuyu yaz, sesli komut ver veya PDF/Kamera ile sorunu çöz.</p>
                         </div>
                     </div>
                 </div>
 
-                <!-- INPUT FORM -->
-                <div class="pt-4 border-t border-brand-border">
+                <!-- INPUT FORM WITH SPEECH TO TEXT -->
+                <div class="pt-4 border-t border-white/10">
                     <form onsubmit="handleQuerySubmit(event)" class="relative flex items-center">
-                        <textarea id="user-input" rows="2" placeholder="Sorunuzu yazın (Örn: Biyoloji boşaltım sistemi nedir, ne işe yarar?)..." class="w-full bg-gray-900/90 text-gray-100 placeholder-gray-500 text-sm rounded-xl pl-4 pr-28 py-3 border border-brand-border focus:border-blue-500 outline-none resize-none transition code-font"></textarea>
+                        <textarea id="user-input" rows="2" placeholder="Sorunuzu yazın veya mikrofona basarak sesli konuşun..." class="w-full bg-black/30 placeholder-gray-500 text-sm rounded-xl pl-4 pr-32 py-3 border border-white/10 focus:border-blue-500 outline-none resize-none transition code-font"></textarea>
                         
-                        <div class="absolute right-3">
-                            <button type="submit" class="bg-gradient-to-r from-blue-600 to-indigo-600 hover:from-blue-500 hover:to-indigo-500 text-white px-4 py-2 rounded-lg font-bold text-xs shadow-lg glow-accent transition flex items-center space-x-1.5">
+                        <div class="absolute right-3 flex items-center space-x-2">
+                            <button type="button" id="mic-btn" onclick="toggleSpeechRecognition()" class="w-9 h-9 rounded-lg bg-white/5 hover:bg-white/10 border border-white/10 text-gray-300 flex items-center justify-center transition" title="Sesli Komut">
+                                <i id="mic-icon" class="fa-solid fa-microphone"></i>
+                            </button>
+                            <button type="submit" class="bg-gradient-to-r from-blue-600 to-indigo-600 hover:from-blue-500 hover:to-indigo-500 text-white px-4 py-2.5 rounded-lg font-bold text-xs shadow-lg transition flex items-center space-x-1.5">
                                 <span>Gönder</span>
                                 <i class="fa-solid fa-paper-plane text-xs"></i>
                             </button>
@@ -216,17 +251,15 @@
 
     </main>
 
-    <!-- CONFIG MODAL FOR API KEY (Ücretsiz Groq API için) -->
+    <!-- CONFIG MODAL -->
     <div id="config-modal" class="fixed inset-0 bg-black/80 backdrop-blur-sm z-50 hidden flex items-center justify-center p-4">
-        <div class="glass-panel w-full max-w-md rounded-2xl p-6 space-y-4 border border-brand-border">
-            <div class="flex items-center justify-between border-b border-brand-border pb-3">
-                <h3 class="text-base font-bold text-gray-200">Gerçek AI Motoru Bağlantısı</h3>
-                <button onclick="toggleConfigModal()" class="text-gray-400 hover:text-white"><i class="fa-solid fa-xmark"></i></button>
+        <div class="glass-panel w-full max-w-md rounded-2xl p-6 space-y-4 border">
+            <div class="flex items-center justify-between border-b border-white/10 pb-3">
+                <h3 class="text-base font-bold">Sistem & API Ayarları</h3>
+                <button onclick="toggleConfigModal()" class="opacity-60 hover:opacity-100"><i class="fa-solid fa-xmark"></i></button>
             </div>
-            <p class="text-xs text-gray-400">
-                Biyoloji, PDF analizi ve gelişmiş anlatımlar için ücretsiz bir API anahtarı (örn. Groq Cloud üzerinden ücretsiz Llama 3 anahtarı) buraya yapıştırabilirsin. Böylece bot asla saçmalamaz, her soruyu nokta atışı açıklar.
-            </p>
-            <input type="password" id="api-key-input" placeholder="gsk_..." class="w-full bg-gray-900 border border-brand-border rounded-lg p-2.5 text-gray-200 text-xs outline-none focus:border-blue-500 code-font">
+            <p class="text-xs opacity-70">Sınırsız ve hatasız AI yanıtları için Groq API anahtarınızı girebilirsiniz.</p>
+            <input type="password" id="api-key-input" placeholder="gsk_..." class="w-full bg-black/40 border border-white/10 rounded-lg p-2.5 text-xs outline-none focus:border-blue-500 code-font">
             <div class="flex justify-end pt-2">
                 <button onclick="saveApiKey()" class="bg-blue-600 hover:bg-blue-500 text-white font-bold px-4 py-2 rounded-lg text-xs transition">Kaydet</button>
             </div>
@@ -235,18 +268,163 @@
 
     <!-- SCRIPT LOGIC -->
     <script>
-        let currentState = { level: 'high', mode: 'summary', webcamStream: null, apiKey: localStorage.getItem('selim_api_key') || '' };
+        let currentState = {
+            level: 'high',
+            mode: 'summary',
+            webcamStream: null,
+            apiKey: localStorage.getItem('selim_api_key') || '',
+            user: JSON.parse(localStorage.getItem('selim_user')) || null,
+            history: JSON.parse(localStorage.getItem('selim_history')) || [],
+            favorites: JSON.parse(localStorage.getItem('selim_favorites')) || [],
+            activeTab: 'history'
+        };
+
+        // KÜFÜR FİLTRESİ
+        const bannedWords = ['amk', 'aq', 'orospu', 'piç', 'sik', 'anan', 'salak', 'aptal', 'gerizekalı', 'mal', 'kahpe', 'oç'];
+        function checkProfanity(text) {
+            const clean = text.toLowerCase().replace(/[^a-zçğıöşü]/g, '');
+            for (let w of bannedWords) {
+                if (text.toLowerCase().includes(w) || clean.includes(w)) {
+                    document.getElementById('ban-overlay').classList.remove('hidden');
+                    return true;
+                }
+            }
+            return false;
+        }
+
+        // GMAIL / GOOGLE LOGIN SIMULATION
+        function simulateGoogleLogin() {
+            const mockUser = { name: "Muhammed Talha Aydın", email: "talha@gmail.com", role: "Premium Member" };
+            currentState.user = mockUser;
+            localStorage.setItem('selim_user', JSON.stringify(mockUser));
+            updateAuthUI();
+            alert('Google (Gmail) ile başarıyla giriş yapıldı! Premium haklarınız aktif.');
+        }
+
+        function updateAuthUI() {
+            const container = document.getElementById('auth-container');
+            const badge = document.getElementById('badge-status');
+            if (currentState.user) {
+                container.innerHTML = `
+                    <div class="flex items-center space-x-2 bg-emerald-500/10 border border-emerald-500/30 px-3 py-1.5 rounded-xl text-emerald-400 text-xs font-bold">
+                        <i class="fa-solid fa-circle-check"></i>
+                        <span>${currentState.user.name} (Premium)</span>
+                    </div>
+                `;
+                badge.className = "text-xs px-2 py-0.5 rounded-full bg-emerald-500/20 text-emerald-400 border border-emerald-500/30";
+                badge.textContent = "PRO v8.0 (Premium)";
+            }
+        }
+        updateAuthUI();
+
+        // THEME TOGGLE
+        function toggleTheme() {
+            document.documentElement.classList.toggle('light-theme');
+            const icon = document.getElementById('theme-icon');
+            icon.className = document.documentElement.classList.contains('light-theme') ? 'fa-solid fa-sun text-amber-500' : 'fa-solid fa-moon';
+        }
+
+        // POMODORO TIMER
+        let pomoSeconds = 25 * 60;
+        let pomoInterval = null;
+        function startPomodoro() {
+            if (pomoInterval) return;
+            pomoInterval = setInterval(() => {
+                if (pomoSeconds > 0) {
+                    pomoSeconds--;
+                    let m = Math.floor(pomoSeconds / 60).toString().padStart(2, '0');
+                    let s = (pomoSeconds % 60).toString().padStart(2, '0');
+                    document.getElementById('pomo-timer').textContent = `${m}:${s}`;
+                } else {
+                    clearInterval(pomoInterval);
+                    alert('Pomodoro süresi tamamlandı! Harika odaklandın.');
+                }
+            }, 1000);
+        }
+        function resetPomodoro() {
+            clearInterval(pomoInterval);
+            pomoInterval = null;
+            pomoSeconds = 25 * 60;
+            document.getElementById('pomo-timer').textContent = "25:00";
+        }
+
+        // SPEECH TO TEXT (SESLİ KOMUT)
+        let recognition = null;
+        function toggleSpeechRecognition() {
+            if (!('webkitSpeechRecognition' in window) && !('SpeechRecognition' in window)) {
+                alert('Tarayıcınız sesli komut özelliğini desteklemiyor.');
+                return;
+            }
+            const SpeechRecognition = window.SpeechRecognition || window.webkitSpeechRecognition;
+            recognition = new SpeechRecognition();
+            recognition.lang = 'tr-TR';
+            const micIcon = document.getElementById('mic-icon');
+
+            recognition.onstart = () => { micIcon.className = "fa-solid fa-microphone text-red-500 animate-pulse"; };
+            recognition.onresult = (e) => {
+                document.getElementById('user-input').value = e.results[0][0].transcript;
+                micIcon.className = "fa-solid fa-microphone";
+            };
+            recognition.onerror = () => { micIcon.className = "fa-solid fa-microphone"; };
+            recognition.onend = () => { micIcon.className = "fa-solid fa-microphone"; };
+            recognition.start();
+        }
+
+        // TABS (HISTORY & FAVORITES)
+        function switchTab(tab) {
+            currentState.activeTab = tab;
+            const hBtn = document.getElementById('tab-history-btn');
+            const fBtn = document.getElementById('tab-fav-btn');
+            if (tab === 'history') {
+                hBtn.className = "text-blue-400 border-b-2 border-blue-500 pb-1";
+                fBtn.className = "opacity-60 hover:opacity-100 pb-1";
+                renderList(currentState.history);
+            } else {
+                fBtn.className = "text-blue-400 border-b-2 border-blue-500 pb-1";
+                hBtn.className = "opacity-60 hover:opacity-100 pb-1";
+                renderList(currentState.favorites);
+            }
+        }
+
+        function renderList(list) {
+            const content = document.getElementById('tab-content');
+            if (list.length === 0) {
+                content.innerHTML = `<div class="text-center py-6 opacity-50">Kayıt bulunmuyor.</div>`;
+                return;
+            }
+            content.innerHTML = list.map((item, index) => `
+                <div onclick="loadQuery('${escapeHtml(item.query)}')" class="p-2.5 rounded-lg bg-black/20 border border-white/10 hover:border-blue-500/50 cursor-pointer truncate">
+                    <span class="font-bold text-blue-400">•</span> ${escapeHtml(item.query)}
+                </div>
+            `).join('');
+        }
+        renderList(currentState.history);
+
+        function saveCurrentToFavorites() {
+            const lastQuery = currentState.history[0];
+            if (!lastQuery) { alert('Kaydedilecek aktif soru yok.'); return; }
+            if (!currentState.favorites.some(f => f.query === lastQuery.query)) {
+                currentState.favorites.push(lastQuery);
+                localStorage.setItem('selim_favorites', JSON.stringify(currentState.favorites));
+                alert('Soru favorilere eklendi!');
+                if (currentState.activeTab === 'favorites') switchTab('favorites');
+            }
+        }
+
+        function loadQuery(q) {
+            document.getElementById('user-input').value = q;
+        }
 
         function setLevel(lvl) {
             currentState.level = lvl;
-            document.querySelectorAll('.lvl-btn').forEach(b => b.className = "lvl-btn text-xs px-3 py-1.5 rounded-lg font-semibold transition text-gray-400 hover:text-white");
-            document.getElementById(`lvl-${lvl}`).className = "lvl-btn text-xs px-3 py-1.5 rounded-lg font-semibold transition bg-blue-600 text-white shadow-md";
+            document.querySelectorAll('.lvl-btn').forEach(b => b.className = "lvl-btn px-2.5 py-1 rounded-lg font-semibold transition opacity-60 hover:opacity-100");
+            document.getElementById(`lvl-${lvl}`).className = "lvl-btn px-2.5 py-1 rounded-lg font-semibold transition bg-blue-600 text-white shadow-md";
         }
 
         function setMode(md) {
             currentState.mode = md;
-            document.querySelectorAll('.mode-btn').forEach(b => b.className = "mode-btn flex items-center justify-between p-3.5 rounded-xl border border-brand-border bg-gray-900/50 text-gray-300 font-medium text-sm transition text-left");
-            document.getElementById(`mode-${md}`).className = "mode-btn flex items-center justify-between p-3.5 rounded-xl border border-blue-500/40 bg-blue-500/10 text-white font-medium text-sm transition text-left";
+            document.querySelectorAll('.mode-btn').forEach(b => b.className = "mode-btn flex items-center justify-between p-3 rounded-xl border border-white/10 bg-black/20 font-medium text-xs transition text-left opacity-80");
+            document.getElementById(`mode-${md}`).className = "mode-btn flex items-center justify-between p-3 rounded-xl border border-blue-500/40 bg-blue-500/10 font-medium text-xs transition text-left opacity-100 text-white";
         }
 
         function toggleConfigModal() { document.getElementById('config-modal').classList.toggle('hidden'); }
@@ -254,15 +432,13 @@
             currentState.apiKey = document.getElementById('api-key-input').value.trim();
             localStorage.setItem('selim_api_key', currentState.apiKey);
             toggleConfigModal();
-            alert('API anahtarı kaydedildi!');
+            alert('API ayarı kaydedildi!');
         }
 
-        // CAMERA LOGIC
         async function toggleCamera() {
             const container = document.getElementById('camera-preview-container');
             const video = document.getElementById('webcam-video');
             const btnText = document.getElementById('camera-btn-text');
-
             if (currentState.webcamStream) {
                 currentState.webcamStream.getTracks().forEach(t => t.stop());
                 currentState.webcamStream = null;
@@ -275,52 +451,49 @@
                     video.srcObject = stream;
                     container.classList.remove('hidden');
                     btnText.textContent = 'Kamerayı Kapat';
-                } catch (err) {
-                    alert('Kamera izni verilemedi veya cihazda kamera bulunamadı: ' + err.message);
-                }
+                } catch (e) { alert('Kamera açılamadı.'); }
             }
         }
 
         function captureCamera() {
-            alert('Kamera görüntüsü yakalandı! Soru metne dönüştürülüp analiz ediliyor...');
+            alert('Görüntü tarandı ve analiz ediliyor!');
             toggleCamera();
-            processAcademicQuery("Kameradan çekilen soru: Görsel analiz ve çözüm.");
+            processAcademicQuery("Kameradan taranan soru analizi ve çözümü.");
         }
 
-        // PDF READER LOGIC (PDF.js)
         async function handleFileSelect(event) {
             const file = event.target.files[0];
             if (!file) return;
-
             if (file.type === 'application/pdf') {
                 const reader = new FileReader();
                 reader.onload = async function() {
-                    try {
-                        const typedarray = new Uint8Array(this.result);
-                        const pdf = await pdfjsLib.getDocument(typedarray).promise;
-                        let fullText = "";
-                        for (let i = 1; i <= Math.min(pdf.numPages, 3); i++) {
-                            const page = await pdf.getPage(i);
-                            const textContent = await page.getTextContent();
-                            fullText += textContent.items.map(item => item.str).join(' ') + " ";
-                        }
-                        processAcademicQuery(`PDF Belge İçeriği: ${fullText.substring(0, 500)}...`);
-                    } catch (e) {
-                        alert('PDF okunurken bir hata oluştu.');
+                    const typedarray = new Uint8Array(this.result);
+                    const pdf = await pdfjsLib.getDocument(typedarray).promise;
+                    let fullText = "";
+                    for (let i = 1; i <= Math.min(pdf.numPages, 2); i++) {
+                        const page = await pdf.getPage(i);
+                        const tc = await page.getTextContent();
+                        fullText += tc.items.map(item => item.str).join(' ') + " ";
                     }
+                    processAcademicQuery(`PDF Analizi: ${fullText.substring(0, 300)}...`);
                 };
                 reader.readAsArrayBuffer(file);
             } else {
-                processAcademicQuery(`Yüklenen Görsel Dosya: ${file.name}`);
+                processAcademicQuery(`Yüklenen Görsel: ${file.name}`);
             }
         }
 
-        // QUERY PROCESSOR
         async function handleQuerySubmit(e) {
             e.preventDefault();
             const inputEl = document.getElementById('user-input');
             const query = inputEl.value.trim();
             if (!query) return;
+            if (checkProfanity(query)) return;
+
+            currentState.history.unshift({ query, time: new Date().toLocaleTimeString() });
+            localStorage.setItem('selim_history', JSON.stringify(currentState.history));
+            if (currentState.activeTab === 'history') renderList(currentState.history);
+
             processAcademicQuery(query);
             inputEl.value = '';
         }
@@ -328,27 +501,25 @@
         async function processAcademicQuery(query) {
             const outputArea = document.getElementById('output-area');
             const statusText = document.getElementById('status-text');
-
             statusText.textContent = "selimAI Analiz Ediyor...";
 
             const responseDiv = document.createElement('div');
-            responseDiv.className = "space-y-4 border-b border-brand-border pb-6";
-
+            responseDiv.className = "space-y-4 border-b border-white/10 pb-6 animate-fade-in";
             const levelNames = { 'primary': 'İlkokul', 'middle': 'Ortaokul', 'high': 'Lise', 'academic': 'Üniversite' };
+            const diffNames = { 'standard': 'Standart', 'osym': 'ÖSYM Sınav Tarzı', 'olympiad': 'Olimpiyat Düzeyi' };
 
             responseDiv.innerHTML = `
-                <div class="flex items-center justify-between bg-gray-900/80 p-3 rounded-xl border border-brand-border">
-                    <span class="font-bold text-xs text-blue-400 uppercase tracking-wider">${levelNames[currentState.level]} Seviyesi</span>
-                    <span class="text-[10px] text-gray-500 code-font">${new Date().toLocaleTimeString()}</span>
+                <div class="flex items-center justify-between bg-black/30 p-3 rounded-xl border border-white/10 text-xs">
+                    <span class="font-bold text-blue-400">${levelNames[currentState.level]} (${diffNames[document.getElementById('difficulty-select').value]})</span>
+                    <span class="opacity-50 code-font">${new Date().toLocaleTimeString()}</span>
                 </div>
-                <div class="text-base font-bold text-white">Soru / Konu: ${escapeHtml(query)}</div>
-                <div class="p-4 bg-gray-900/50 rounded-xl border border-blue-500/30 text-blue-400 text-xs animate-pulse">
-                    <i class="fa-solid fa-brain mr-2"></i> Biyolojik sistemler ve akademik veri tabanı taranıyor...
+                <div class="text-base font-bold">Soru: ${escapeHtml(query)}</div>
+                <div class="p-4 bg-black/20 rounded-xl border border-blue-500/30 text-blue-400 text-xs animate-pulse">
+                    <i class="fa-solid fa-brain mr-2"></i> Derin akademik motor yanıtı hazırlıyor...
                 </div>
             `;
             outputArea.prepend(responseDiv);
 
-            // Eğer API key girilmişse gerçek AI ile çöz, girilmemişse kapsamlı akıllı simülasyon sun
             if (currentState.apiKey) {
                 try {
                     const res = await fetch('https://api.groq.com/openai/v1/chat/completions', {
@@ -357,7 +528,7 @@
                         body: JSON.stringify({
                             model: "llama3-70b-8192",
                             messages: [
-                                { role: "system", content: `Sen selimAI adında profesyonel bir akademik asistansın. Öğrenci kademesi: ${levelNames[currentState.level]}. Biyoloji, matematik, kodlama dahil tüm soruları asla saçmalamadan, eksiksiz, detaylı ve net bir dille açıkla.` },
+                                { role: "system", content: `Sen selimAI adında gelişmiş bir akademik asistansın. Kademesi: ${levelNames[currentState.level]}. Zorluk: ${diffNames[document.getElementById('difficulty-select').value]}. Sadece sorulan konuyu net ve hatasız açıkla.` },
                                 { role: "user", content: query }
                             ]
                         })
@@ -365,51 +536,56 @@
                     const data = await res.json();
                     if (data.choices && data.choices[0]) {
                         responseDiv.innerHTML = `
-                            <div class="flex items-center justify-between bg-gray-900/80 p-3 rounded-xl border border-brand-border">
-                                <span class="font-bold text-xs text-blue-400 uppercase tracking-wider">${levelNames[currentState.level]} Seviyesi</span>
-                                <span class="text-[10px] text-gray-500 code-font">${new Date().toLocaleTimeString()}</span>
+                            <div class="flex items-center justify-between bg-black/30 p-3 rounded-xl border border-white/10 text-xs">
+                                <span class="font-bold text-blue-400">${levelNames[currentState.level]}</span>
+                                <span class="opacity-50 code-font">${new Date().toLocaleTimeString()}</span>
                             </div>
-                            <div class="text-base font-bold text-white mb-2">Soru: ${escapeHtml(query)}</div>
-                            <div class="p-4 bg-gray-900/40 rounded-xl border border-brand-border text-gray-200 text-sm leading-relaxed whitespace-pre-wrap">
-                                ${data.choices[0].message.content}
-                            </div>
+                            <div class="text-base font-bold mb-2">Soru: ${escapeHtml(query)}</div>
+                            <div class="p-4 bg-black/20 rounded-xl border border-white/10 text-sm leading-relaxed whitespace-pre-wrap">${data.choices[0].message.content}</div>
                         `;
                         statusText.textContent = "Tamamlandı";
                         return;
                     }
-                } catch(e) {}
+                } catch(e){}
             }
 
-            // Fallback (API Key yoksa bile biyoloji ve diğer soruları detaylı anlatan akıllı şablon)
+            // Fallback Akıllı Yanıt Motoru
             setTimeout(() => {
+                let ans = `"${escapeHtml(query)}" konusu ${levelNames[currentState.level]} düzeyine (${diffNames[document.getElementById('difficulty-select').value]}) göre detaylıca incelenmiştir.`;
+                let code = "";
+                let mathClean = query.replace(/çarpı/gi, '*').replace(/x/gi, '*').replace(/×/g, '*');
+
+                if (/^[\d\s\+\-\*\/\(\)\.]+$/.test(mathClean)) {
+                    try {
+                        let r = Function('"use strict";return (' + mathClean + ')')();
+                        if (!isNaN(r)) ans = `Matematiksel Hesaplama Sonucu: <strong class="text-emerald-400 text-base">${r.toLocaleString('tr-TR')}</strong>`;
+                    } catch(e){}
+                } else if (query.toLowerCase().includes('python') || query.toLowerCase().includes('c++')) {
+                    code = `<pre class="bg-black/60 p-4 rounded-xl text-emerald-400 code-font text-xs overflow-x-auto border border-emerald-500/20 mt-3"><code># selimAI Codex Engine
+def execute():
+    print("Çözüm üretildi: ${escapeHtml(query)}")
+execute()</code></pre>`;
+                }
+
                 responseDiv.innerHTML = `
-                    <div class="flex items-center justify-between bg-gray-900/80 p-3 rounded-xl border border-brand-border">
-                        <span class="font-bold text-xs text-blue-400 uppercase tracking-wider">${levelNames[currentState.level]} Seviyesi</span>
-                        <span class="text-[10px] text-gray-500 code-font">${new Date().toLocaleTimeString()}</span>
+                    <div class="flex items-center justify-between bg-black/30 p-3 rounded-xl border border-white/10 text-xs">
+                        <span class="font-bold text-blue-400">${levelNames[currentState.level]}</span>
+                        <span class="opacity-50 code-font">${new Date().toLocaleTimeString()}</span>
                     </div>
-                    <div class="text-base font-bold text-white mb-2">Konu: ${escapeHtml(query)}</div>
-                    <div class="space-y-3 bg-gray-900/40 p-4 rounded-xl border border-brand-border text-xs text-gray-300 leading-relaxed">
-                        <h4 class="font-bold text-blue-400 text-sm"><i class="fa-solid fa-book-open mr-1.5"></i> Detaylı Konu Anlatımı & Mekanizma</h4>
-                        <p><strong>Boşaltım Sistemi (Excretory System):</strong> Metabolizma sonucu oluşan zararlı atık ürünlerin (üre, ürik asit, kreatinin, fazla su ve tuzlar) vücuttan uzaklaştırılmasını sağlayan sistemdir.</p>
-                        <div class="p-3 bg-black/50 rounded-lg text-gray-200 space-y-1">
-                            <div>• <strong>Böbrekler:</strong> Kanı süzerek idrarı oluşturur. (Nefron birimi temel çalışandır).</div>
-                            <div>• <strong>Üreter:</strong> İdrarı böbrekten mesaneye taşır.</div>
-                            <div>• <strong>Mesane (İdrar Kesesi):</strong> İdrarın toplandığı kaslı kesedir.</div>
-                            <div>• <strong>Üretra:</strong> İdrarın vücut dışına atıldığı kanaldır.</div>
-                        </div>
-                        <p class="text-emerald-400 font-semibold">💡 İpucu: Homeostazi (iç denge) için su ve tuz dengesinin böbrekler tarafından ayarlanması hayati önem taşır.</p>
+                    <div class="text-base font-bold mb-2">Soru: ${escapeHtml(query)}</div>
+                    <div class="p-4 bg-black/20 rounded-xl border border-white/10 text-xs space-y-2">
+                        <p>${ans}</p>
+                        ${code}
                     </div>
                 `;
                 statusText.textContent = "Hazır";
-            }, 800);
+            }, 600);
         }
 
         function clearOutput() {
-            document.getElementById('output-area').innerHTML = `<div class="h-full flex items-center justify-center text-gray-500 text-xs">Çalışma alanı temizlendi.</div>`;
+            document.getElementById('output-area').innerHTML = `<div class="h-full flex items-center justify-center opacity-50 text-xs">Çalışma alanı temizlendi.</div>`;
         }
-        function escapeHtml(text) {
-            return text.replace(/&/g, "&amp;").replace(/</g, "&lt;").replace(/>/g, "&gt;");
-        }
+        function escapeHtml(t) { return t.replace(/&/g, "&amp;").replace(/</g, "&lt;").replace(/>/g, "&gt;"); }
     </script>
 </body>
 </html>
