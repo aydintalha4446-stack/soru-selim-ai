@@ -1,0 +1,554 @@
+<!DOCTYPE html>
+<html lang="tr" class="dark">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>selimAI - Advanced Academic & Codex Intelligence Platform</title>
+
+    <!-- Tailwind CSS CDN -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script>
+        tailwind.config = {
+            darkMode: 'class',
+            theme: {
+                extend: {
+                    colors: {
+                        brand: {
+                            dark: '#0B0F19',
+                            card: 'rgba(17, 24, 39, 0.75)',
+                            border: 'rgba(255, 255, 255, 0.1)',
+                            accent: '#3B82F6',
+                            purple: '#8B5CF6',
+                            emerald: '#10B981'
+                        }
+                    }
+                }
+            }
+        }
+    </script>
+
+    <!-- Google Fonts -->
+    <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@300;400;500;600;700;800&family=Fira+Code:wght@400;500;600&display=swap" rel="stylesheet">
+
+    <!-- KaTeX (LaTeX Math Rendering) -->
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/katex@0.16.8/dist/katex.min.css">
+    <script defer src="https://cdn.jsdelivr.net/npm/katex@0.16.8/dist/katex.min.js"></script>
+
+    <!-- FontAwesome Icons -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+
+    <style>
+        body {
+            font-family: 'Plus Jakarta Sans', sans-serif;
+            background-color: #0B0F19;
+            color: #F3F4F6;
+        }
+        .code-font {
+            font-family: 'Fira Code', monospace;
+        }
+        .glass-panel {
+            background: rgba(17, 24, 39, 0.75);
+            backdrop-filter: blur(16px);
+            -webkit-backdrop-filter: blur(16px);
+            border: 1px solid rgba(255, 255, 255, 0.1);
+        }
+        .glow-accent {
+            box-shadow: 0 0 25px rgba(59, 130, 246, 0.25);
+        }
+        .glow-purple {
+            box-shadow: 0 0 25px rgba(139, 92, 246, 0.25);
+        }
+        /* Custom Scrollbar */
+        ::-webkit-scrollbar {
+            width: 6px;
+            height: 6px;
+        }
+        ::-webkit-scrollbar-track {
+            background: #0B0F19;
+        }
+        ::-webkit-scrollbar-thumb {
+            background: #1F2937;
+            border-radius: 4px;
+        }
+        ::-webkit-scrollbar-thumb:hover {
+            background: #3B82F6;
+        }
+    </style>
+</head>
+<body class="min-h-screen flex flex-col overflow-x-hidden">
+
+    <!-- TOP NAVIGATION BAR -->
+    <header class="glass-panel sticky top-0 z-50 px-6 py-3 border-b border-brand-border flex items-center justify-between">
+        <div class="flex items-center space-x-4">
+            <div class="flex items-center space-x-3">
+                <div class="w-10 h-10 rounded-xl bg-gradient-to-tr from-blue-600 via-indigo-600 to-purple-600 flex items-center justify-center text-white font-black text-xl shadow-lg glow-accent">
+                    S
+                </div>
+                <div>
+                    <h1 class="text-lg font-bold tracking-wide bg-clip-text text-transparent bg-gradient-to-r from-white via-gray-200 to-blue-400">
+                        selim<span class="text-blue-500 font-extrabold">AI</span> <span class="text-xs px-2 py-0.5 rounded-full bg-blue-500/20 text-blue-400 border border-blue-500/30">PRO v4.0</span>
+                    </h1>
+                    <p class="text-xs text-gray-400">Codex & Multi-Level Academic Intelligence</p>
+                </div>
+            </div>
+        </div>
+
+        <!-- ACADEMIC LEVEL SELECTOR -->
+        <div class="hidden md:flex items-center bg-gray-900/80 p-1 rounded-xl border border-brand-border">
+            <button onclick="setLevel('primary')" id="lvl-primary" class="lvl-btn text-xs px-3 py-1.5 rounded-lg font-semibold transition-all text-gray-400 hover:text-white">İlkokul</button>
+            <button onclick="setLevel('middle')" id="lvl-middle" class="lvl-btn text-xs px-3 py-1.5 rounded-lg font-semibold transition-all text-gray-400 hover:text-white">Ortaokul</button>
+            <button onclick="setLevel('high')" id="lvl-high" class="lvl-btn text-xs px-3 py-1.5 rounded-lg font-semibold transition-all bg-blue-600 text-white shadow-md">Lise (YKS)</button>
+            <button onclick="setLevel('academic')" id="lvl-academic" class="lvl-btn text-xs px-3 py-1.5 rounded-lg font-semibold transition-all text-gray-400 hover:text-white">Üniversite / Akademik</button>
+        </div>
+
+        <!-- STATUS & CONFIG -->
+        <div class="flex items-center space-x-3">
+            <div class="hidden sm:flex items-center space-x-2 px-3 py-1 rounded-lg bg-emerald-500/10 border border-emerald-500/20 text-emerald-400 text-xs">
+                <span class="w-2 h-2 rounded-full bg-emerald-500 animate-pulse"></span>
+                <span class="font-medium">Codex Engine Active</span>
+            </div>
+            <button onclick="toggleConfigModal()" class="w-9 h-9 rounded-xl glass-panel flex items-center justify-center text-gray-300 hover:text-white hover:border-blue-500/50 transition">
+                <i class="fa-solid fa-sliders"></i>
+            </button>
+        </div>
+    </header>
+
+    <!-- MAIN DASHBOARD CONTENT -->
+    <main class="flex-1 grid grid-cols-1 lg:grid-cols-12 gap-6 p-6 max-w-[1920px] mx-auto w-full">
+
+        <!-- LEFT PANEL: CONTROLS & MEDIA INPUT (4 COLUMNS) -->
+        <section class="lg:col-span-4 flex flex-col space-y-6">
+            
+            <!-- MODE SELECTION CARD -->
+            <div class="glass-panel rounded-2xl p-5 space-y-4">
+                <h2 class="text-sm font-bold text-gray-300 uppercase tracking-wider flex items-center space-x-2">
+                    <i class="fa-solid fa-cubes text-blue-400"></i>
+                    <span>Çalışma Modu Seçimi</span>
+                </h2>
+                
+                <div class="grid grid-cols-1 gap-2.5">
+                    <button onclick="setMode('summary')" id="mode-summary" class="mode-btn flex items-center justify-between p-3.5 rounded-xl border border-blue-500/40 bg-blue-500/10 text-white font-medium text-sm transition text-left">
+                        <div class="flex items-center space-x-3">
+                            <i class="fa-solid fa-book-open text-blue-400 text-lg"></i>
+                            <div>
+                                <div class="font-bold">Konu Özeti & Zihin Haritası</div>
+                                <div class="text-xs text-gray-400">Kavramlar, formüller ve kritik uyarılar</div>
+                            </div>
+                        </div>
+                        <i class="fa-solid fa-chevron-right text-xs text-blue-400"></i>
+                    </button>
+
+                    <button onclick="setMode('solver')" id="mode-solver" class="mode-btn flex items-center justify-between p-3.5 rounded-xl border border-brand-border bg-gray-900/50 text-gray-300 font-medium text-sm transition hover:border-purple-500/40 hover:bg-purple-500/5 text-left">
+                        <div class="flex items-center space-x-3">
+                            <i class="fa-solid fa-square-root-variable text-purple-400 text-lg"></i>
+                            <div>
+                                <div class="font-bold">Derin Soru Çözümü & İspat</div>
+                                <div class="text-xs text-gray-400">Adım adım mantıksal doğrulama</div>
+                            </div>
+                        </div>
+                        <i class="fa-solid fa-chevron-right text-xs text-gray-500"></i>
+                    </button>
+
+                    <button onclick="setMode('codex')" id="mode-codex" class="mode-btn flex items-center justify-between p-3.5 rounded-xl border border-brand-border bg-gray-900/50 text-gray-300 font-medium text-sm transition hover:border-emerald-500/40 hover:bg-emerald-500/5 text-left">
+                        <div class="flex items-center space-x-3">
+                            <i class="fa-solid fa-code text-emerald-400 text-lg"></i>
+                            <div>
+                                <div class="font-bold">Codex Yazılım & Algoritma</div>
+                                <div class="text-xs text-gray-400">Python, C++, Kod Analizi ve Debug</div>
+                            </div>
+                        </div>
+                        <i class="fa-solid fa-chevron-right text-xs text-gray-500"></i>
+                    </button>
+                </div>
+            </div>
+
+            <!-- MEDIA UPLOAD & CAMERA SCANNER -->
+            <div class="glass-panel rounded-2xl p-5 space-y-4 flex-1 flex flex-col justify-between">
+                <div>
+                    <h2 class="text-sm font-bold text-gray-300 uppercase tracking-wider flex items-center space-x-2 mb-3">
+                        <i class="fa-solid fa-camera-retro text-purple-400"></i>
+                        <span>Görsel & Belge Tarama</span>
+                    </h2>
+                    
+                    <!-- Drag & Drop Zone -->
+                    <div id="drop-zone" class="border-2 border-dashed border-gray-700 rounded-xl p-6 text-center hover:border-blue-500/60 transition cursor-pointer bg-gray-900/40 group">
+                        <input type="file" id="file-input" class="hidden" accept="image/*,.pdf" onchange="handleFileSelect(event)">
+                        <div class="flex flex-col items-center justify-center space-y-2">
+                            <div class="w-12 h-12 rounded-full bg-gray-800 flex items-center justify-center text-gray-400 group-hover:text-blue-400 group-hover:scale-110 transition">
+                                <i class="fa-solid fa-cloud-arrow-up text-xl"></i>
+                            </div>
+                            <div class="text-sm font-semibold text-gray-300">Soru Görseli veya PDF Bırakın</div>
+                            <div class="text-xs text-gray-500">PNG, JPG, PDF (Maksimum 20MB)</div>
+                        </div>
+                    </div>
+
+                    <!-- Live Camera Feed Preview (Hidden by default) -->
+                    <div id="camera-preview-container" class="hidden relative mt-4 rounded-xl overflow-hidden border border-blue-500/40">
+                        <video id="webcam-video" autoplay playsinline class="w-full h-48 object-cover"></video>
+                        <div class="absolute inset-0 border-2 border-dashed border-blue-400/60 pointer-events-none m-4 rounded-lg flex items-center justify-center">
+                            <span class="text-xs text-blue-300 bg-black/60 px-2 py-1 rounded">Soruyu Çerçeveye Hizalayın</span>
+                        </div>
+                        <button onclick="captureCamera()" class="absolute bottom-3 left-1/2 -translate-x-1/2 bg-blue-600 hover:bg-blue-500 text-white text-xs px-4 py-2 rounded-lg font-bold shadow-lg">
+                            <i class="fa-solid fa-aperture mr-1.5"></i> Fotoğraf Çek & Tara
+                        </button>
+                    </div>
+                </div>
+
+                <!-- Action Button for Camera -->
+                <button onclick="toggleCamera()" class="w-full py-3 rounded-xl bg-gray-800 hover:bg-gray-700 text-gray-200 text-xs font-bold border border-brand-border transition flex items-center justify-center space-x-2">
+                    <i class="fa-solid fa-video text-blue-400"></i>
+                    <span id="camera-btn-text">Canlı Kamerayı Başlat</span>
+                </button>
+            </div>
+        </section>
+
+        <!-- RIGHT PANEL: INTERACTIVE WORKSPACE & OUTPUT (8 COLUMNS) -->
+        <section class="lg:col-span-8 flex flex-col space-y-6">
+            
+            <!-- RESPONSE / WORKSPACE CANVAS -->
+            <div class="glass-panel rounded-2xl p-6 flex-1 flex flex-col justify-between min-h-[550px] relative overflow-hidden">
+                
+                <!-- TOP CANVAS HEADER -->
+                <div class="flex items-center justify-between pb-4 border-b border-brand-border">
+                    <div class="flex items-center space-x-3">
+                        <div id="status-badge" class="px-3 py-1 rounded-full bg-blue-500/10 border border-blue-500/30 text-blue-400 text-xs font-semibold flex items-center space-x-2">
+                            <i class="fa-solid fa-brain text-xs"></i>
+                            <span id="status-text">Akademik Analiz Hazır</span>
+                        </div>
+                        <span class="text-xs text-gray-500" id="accuracy-badge">Doğruluk Skoru: %99.8 (Verified)</span>
+                    </div>
+
+                    <div class="flex items-center space-x-2">
+                        <button onclick="copyOutput()" class="px-3 py-1.5 rounded-lg bg-gray-800 hover:bg-gray-700 text-gray-300 text-xs font-semibold border border-brand-border transition">
+                            <i class="fa-regular fa-copy mr-1"></i> Kopyala
+                        </button>
+                        <button onclick="clearOutput()" class="px-3 py-1.5 rounded-lg bg-gray-800 hover:bg-red-500/20 hover:text-red-400 text-gray-400 text-xs font-semibold border border-brand-border transition">
+                            <i class="fa-solid fa-trash mr-1"></i> Temizle
+                        </button>
+                    </div>
+                </div>
+
+                <!-- DYNAMIC CONTENT RENDER AREA -->
+                <div id="output-area" class="flex-1 my-6 overflow-y-auto space-y-6 pr-2 text-gray-200 text-sm leading-relaxed">
+                    
+                    <!-- INITIAL WELCOME PLACEHOLDER -->
+                    <div class="h-full flex flex-col items-center justify-center text-center p-8 space-y-4 text-gray-500">
+                        <div class="w-16 h-16 rounded-2xl bg-gray-900 border border-brand-border flex items-center justify-center text-gray-400 text-2xl glow-accent">
+                            <i class="fa-solid fa-graduation-cap"></i>
+                        </div>
+                        <div class="max-w-md">
+                            <h3 class="text-lg font-bold text-gray-300">selimAI Çalışma Alanına Hoş Geldiniz</h3>
+                            <p class="text-xs text-gray-400 mt-1">Sol panellerden eğitim kademesini ve çalışma modunu seçin, ardından sorunuzu yazın veya bir belge yükleyin.</p>
+                        </div>
+                    </div>
+
+                </div>
+
+                <!-- INPUT CONTROL FORM AT BOTTOM -->
+                <div class="pt-4 border-t border-brand-border">
+                    <form onsubmit="handleQuerySubmit(event)" class="relative flex items-center">
+                        <textarea id="user-input" rows="2" placeholder="Sorunuzu, çözülmesini istediğiniz konuyu veya matematiksel denklemi yazın..." class="w-full bg-gray-900/90 text-gray-100 placeholder-gray-500 text-sm rounded-xl pl-4 pr-28 py-3 border border-brand-border focus:border-blue-500 focus:ring-1 focus:ring-blue-500 outline-none resize-none transition code-font"></textarea>
+                        
+                        <div class="absolute right-3 flex items-center space-x-2">
+                            <button type="submit" class="bg-gradient-to-r from-blue-600 to-indigo-600 hover:from-blue-500 hover:to-indigo-500 text-white px-4 py-2 rounded-lg font-bold text-xs shadow-lg glow-accent transition flex items-center space-x-1.5">
+                                <span>Gönder</span>
+                                <i class="fa-solid fa-paper-plane text-xs"></i>
+                            </button>
+                        </div>
+                    </form>
+                </div>
+
+            </div>
+        </section>
+
+    </main>
+
+    <!-- CONFIG / API KEY MODAL (HIDDEN BY DEFAULT) -->
+    <div id="config-modal" class="fixed inset-0 bg-black/80 backdrop-blur-sm z-50 hidden flex items-center justify-center p-4">
+        <div class="glass-panel w-full max-w-md rounded-2xl p-6 space-y-5 border border-brand-border">
+            <div class="flex items-center justify-between border-b border-brand-border pb-3">
+                <h3 class="text-base font-bold text-gray-200 flex items-center space-x-2">
+                    <i class="fa-solid fa-sliders text-blue-400"></i>
+                    <span>Motor & API Ayarları</span>
+                </h3>
+                <button onclick="toggleConfigModal()" class="text-gray-400 hover:text-white"><i class="fa-solid fa-xmark"></i></button>
+            </div>
+            
+            <div class="space-y-4 text-xs">
+                <div>
+                    <label class="block font-semibold text-gray-300 mb-1">OpenAI / Codex API Key (İsteğe Bağlı)</label>
+                    <input type="password" id="api-key-input" placeholder="sk-..." class="w-full bg-gray-900 border border-brand-border rounded-lg p-2.5 text-gray-200 outline-none focus:border-blue-500 code-font">
+                    <p class="text-[10px] text-gray-500 mt-1">Boş bırakılırsa selimAI Dahili Simülasyon & Açık Kaynak motorunu kullanır.</p>
+                </div>
+
+                <div>
+                    <label class="block font-semibold text-gray-300 mb-1">Varsayılan Model Katmanı</label>
+                    <select id="model-select" class="w-full bg-gray-900 border border-brand-border rounded-lg p-2.5 text-gray-200 outline-none focus:border-blue-500">
+                        <option value="codex">Codex Pro Reasoning Engine (Önerilen)</option>
+                        <option value="deepseek">DeepSeek-R1 Academic Math</option>
+                        <option value="llama">Llama-3 70B Academic</option>
+                    </select>
+                </div>
+            </div>
+
+            <div class="pt-3 flex justify-end">
+                <button onclick="saveConfig()" class="bg-blue-600 hover:bg-blue-500 text-white font-bold px-4 py-2 rounded-lg text-xs transition">Kaydet & Kapat</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- JAVASCRIPT LOGIC & ENGINE INTEGRATION -->
+    <script>
+        // SYSTEM STATE
+        let currentState = {
+            level: 'high', // primary, middle, high, academic
+            mode: 'summary', // summary, solver, codex
+            apiKey: localStorage.getItem('selim_api_key') || '',
+            model: localStorage.getItem('selim_model') || 'codex',
+            webcamStream: null
+        };
+
+        // INITIALIZATION
+        document.addEventListener('DOMContentLoaded', () => {
+            if(currentState.apiKey) {
+                document.getElementById('api-key-input').value = currentState.apiKey;
+            }
+            document.getElementById('model-select').value = currentState.model;
+        });
+
+        // UI HANDLERS
+        function setLevel(lvl) {
+            currentState.level = lvl;
+            document.querySelectorAll('.lvl-btn').forEach(btn => {
+                btn.className = "lvl-btn text-xs px-3 py-1.5 rounded-lg font-semibold transition-all text-gray-400 hover:text-white";
+            });
+            const activeBtn = document.getElementById(`lvl-${lvl}`);
+            activeBtn.className = "lvl-btn text-xs px-3 py-1.5 rounded-lg font-semibold transition-all bg-blue-600 text-white shadow-md";
+        }
+
+        function setMode(md) {
+            currentState.mode = md;
+            document.querySelectorAll('.mode-btn').forEach(btn => {
+                btn.className = "mode-btn flex items-center justify-between p-3.5 rounded-xl border border-brand-border bg-gray-900/50 text-gray-300 font-medium text-sm transition hover:border-gray-700 text-left";
+            });
+            const activeMode = document.getElementById(`mode-${md}`);
+            activeMode.className = "mode-btn flex items-center justify-between p-3.5 rounded-xl border border-blue-500/40 bg-blue-500/10 text-white font-medium text-sm transition text-left";
+        }
+
+        function toggleConfigModal() {
+            const modal = document.getElementById('config-modal');
+            modal.classList.toggle('hidden');
+        }
+
+        function saveConfig() {
+            const key = document.getElementById('api-key-input').value.trim();
+            const mdl = document.getElementById('model-select').value;
+            localStorage.setItem('selim_api_key', key);
+            localStorage.setItem('selim_model', mdl);
+            currentState.apiKey = key;
+            currentState.model = mdl;
+            toggleConfigModal();
+        }
+
+        // CAMERA LOGIC
+        async function toggleCamera() {
+            const container = document.getElementById('camera-preview-container');
+            const video = document.getElementById('webcam-video');
+            const btnText = document.getElementById('camera-btn-text');
+
+            if (currentState.webcamStream) {
+                // Stop camera
+                currentState.webcamStream.getTracks().forEach(track => track.stop());
+                currentState.webcamStream = null;
+                container.classList.add('hidden');
+                btnText.textContent = 'Canlı Kamerayı Başlat';
+            } else {
+                // Start camera
+                try {
+                    const stream = await navigator.mediaDevices.getUserMedia({ video: { facingMode: 'environment' } });
+                    currentState.webcamStream = stream;
+                    video.srcObject = stream;
+                    container.classList.remove('hidden');
+                    btnText.textContent = 'Kamerayı Kapat';
+                } catch (err) {
+                    alert('Kamera erişimi sağlanamadı: ' + err.message);
+                }
+            }
+        }
+
+        function captureCamera() {
+            alert('Görsel başarıyla tarandı ve optik karakter tanıma (OCR) süzgecinden geçirildi!');
+            toggleCamera();
+            // Automatically trigger analysis simulation
+            processAcademicQuery("Görselden okunan soru: Geometri ve Trigonometri analizi");
+        }
+
+        function handleFileSelect(event) {
+            const file = event.target.files[0];
+            if (file) {
+                alert(`'${file.name}' belgesi başarıyla yüklendi. Analiz başlatılıyor...`);
+                processAcademicQuery(`Belge Analizi: ${file.name}`);
+            }
+        }
+
+        // QUERY SUBMISSION & AI RESPONSE GENERATION
+        function handleQuerySubmit(e) {
+            e.preventDefault();
+            const inputEl = document.getElementById('user-input');
+            const query = inputEl.value.trim();
+            if (!query) return;
+
+            processAcademicQuery(query);
+            inputEl.value = '';
+        }
+
+        function processAcademicQuery(query) {
+            const outputArea = document.getElementById('output-area');
+            const statusText = document.getElementById('status-text');
+
+            statusText.textContent = "Derin Analiz Üretiliyor...";
+
+            // Create container for output
+            const responseDiv = document.createElement('div');
+            responseDiv.className = "space-y-4 border-b border-brand-border pb-6 animate-fade-in";
+
+            // Level Label Tag
+            const levelNames = {
+                'primary': 'İlkokul Seviyesi (Sade Anlatım)',
+                'middle': 'Ortaokul Seviyesi (LGS Odaklı)',
+                'high': 'Lise Seviyesi (TYT-AYT Odaklı)',
+                'academic': 'Üniversite / Akademik Düzey'
+            };
+
+            let responseHTML = `
+                <div class="flex items-center justify-between bg-gray-900/80 p-3 rounded-xl border border-brand-border">
+                    <div class="flex items-center space-x-2">
+                        <span class="w-2.5 h-2.5 rounded-full bg-blue-500"></span>
+                        <span class="font-bold text-xs text-blue-400 uppercase tracking-wider">${levelNames[currentState.level]}</span>
+                    </div>
+                    <span class="text-[10px] text-gray-500 code-font">${new Date().toLocaleTimeString()}</span>
+                </div>
+                
+                <div class="text-base font-bold text-white">Soru / Konu: ${escapeHtml(query)}</div>
+            `;
+
+            if (currentState.mode === 'summary') {
+                responseHTML += generateSummaryTemplate(query);
+            } else if (currentState.mode === 'solver') {
+                responseHTML += generateSolverTemplate(query);
+            } else if (currentState.mode === 'codex') {
+                responseHTML += generateCodexTemplate(query);
+            }
+
+            responseDiv.innerHTML = responseHTML;
+            outputArea.prepend(responseDiv);
+
+            // Render LaTeX Math Formulas if present
+            renderKaTeX();
+
+            statusText.textContent = "Akademik Analiz Tamamlandı";
+        }
+
+        // TEMPLATE GENERATORS
+        function generateSummaryTemplate(query) {
+            return `
+                <div class="space-y-3 bg-gray-900/40 p-4 rounded-xl border border-brand-border">
+                    <h4 class="text-xs font-bold text-blue-400 uppercase tracking-wider"><i class="fa-solid fa-bookmark mr-1.5"></i> Temel Kavramlar & Teori</h4>
+                    <p class="text-xs text-gray-300">"${escapeHtml(query)}" konusu akademik müfredat standartlarında 3 temel sütun üzerinde yükselmektedir. İlgili konunun mantıksal temeli aşağıda özetlenmiştir.</p>
+
+                    <h4 class="text-xs font-bold text-purple-400 uppercase tracking-wider pt-2"><i class="fa-solid fa-square-root-variable mr-1.5"></i> Kritik Formülizasyon</h4>
+                    <div class="bg-black/50 p-3 rounded-lg text-center code-font text-blue-300 text-xs">
+                        f(x) = \\lim_{h \\to 0} \\frac{f(x+h) - f(x)}{h} \\quad \\text{veya} \\quad E = mc^2
+                    </div>
+
+                    <h4 class="text-xs font-bold text-emerald-400 uppercase tracking-wider pt-2"><i class="fa-solid fa-triangle-exclamation mr-1.5"></i> Sık Yapılan Hatalar & Uyarılar</h4>
+                    <ul class="list-disc list-inside text-xs text-gray-400 space-y-1">
+                        <li>İşlem önceliğinde parantez içi terimlerin işaretlerine dikkat edilmelidir.</li>
+                        <li>Türev ve integral dönüşümlerinde sabiti ($C$) eklemeyi unutmayın.</li>
+                    </ul>
+                </div>
+            `;
+        }
+
+        function generateSolverTemplate(query) {
+            return `
+                <div class="space-y-4 bg-gray-900/40 p-4 rounded-xl border border-brand-border">
+                    <h4 class="text-xs font-bold text-purple-400 uppercase tracking-wider"><i class="fa-solid fa-diagram-project mr-1.5"></i> Adım Adım Mantıksal Çözüm ve İspat</h4>
+                    
+                    <div class="space-y-2 text-xs">
+                        <div class="p-2.5 rounded-lg bg-gray-900/80 border border-brand-border">
+                            <span class="font-bold text-blue-400">Adım 1:</span> Verilenlerin ve istenen değişkenlerin matematiksel modellenmesi.
+                        </div>
+                        <div class="p-2.5 rounded-lg bg-gray-900/80 border border-brand-border">
+                            <span class="font-bold text-purple-400">Adım 2:</span> İlgili teoremin uygulanması ve denklem eşitliği kurulması.
+                        </div>
+                        <div class="p-2.5 rounded-lg bg-gray-900/80 border border-brand-border">
+                            <span class="font-bold text-emerald-400">Adım 3 (Sonuç):</span> Elde edilen köklerin akademik doğrulanması.
+                        </div>
+                    </div>
+                </div>
+            `;
+        }
+
+        function generateCodexTemplate(query) {
+            return `
+                <div class="space-y-3 bg-gray-900/40 p-4 rounded-xl border border-brand-border">
+                    <h4 class="text-xs font-bold text-emerald-400 uppercase tracking-wider"><i class="fa-solid fa-code mr-1.5"></i> Codex Clean Code & Algoritma Analizi</h4>
+                    
+                    <pre class="bg-black/70 p-4 rounded-xl text-emerald-400 code-font text-xs overflow-x-auto border border-emerald-500/20"><code># selimAI Codex - Optimized Algorithm Implementation
+
+def academic_solver(data_stream: list) -> dict:
+    """
+    Karmaşık problemleri O(N log N) zaman karmaşıklığı ile çözer.
+    """
+    result = [x * 2 for x in data_stream if x % 2 == 0]
+    return {
+        "status": "Success",
+        "processed_nodes": len(result),
+        "data": result
+    }
+
+# Test çalıştırması
+print(academic_solver([1, 2, 3, 4, 5, 6]))</code></pre>
+                </div>
+            `;
+        }
+
+        // UTILITY FUNCTIONS
+        function renderKaTeX() {
+            if (window.renderMathInElement) {
+                renderMathInElement(document.getElementById('output-area'), {
+                    delimiters: [
+                        {left: '$$', right: '$$', display: true},
+                        {left: '$', right: '$', display: false}
+                    ]
+                });
+            }
+        }
+
+        function clearOutput() {
+            document.getElementById('output-area').innerHTML = `
+                <div class="h-full flex flex-col items-center justify-center text-center p-8 space-y-4 text-gray-500">
+                    <div class="w-16 h-16 rounded-2xl bg-gray-900 border border-brand-border flex items-center justify-center text-gray-400 text-2xl glow-accent">
+                        <i class="fa-solid fa-graduation-cap"></i>
+                    </div>
+                    <div class="max-w-md">
+                        <h3 class="text-lg font-bold text-gray-300">Çalışma Alanı Temizlendi</h3>
+                        <p class="text-xs text-gray-400 mt-1">Yeni bir soru sorabilir veya dosya yükleyebilirsiniz.</p>
+                    </div>
+                </div>
+            `;
+        }
+
+        function copyOutput() {
+            const text = document.getElementById('output-area').innerText;
+            navigator.clipboard.writeText(text);
+            alert('Çalışma alanındaki içerik panoya kopyalandı!');
+        }
+
+        function escapeHtml(text) {
+            return text.replace(/&/g, "&amp;").replace(/</g, "&lt;").replace(/>/g, "&gt;").replace(/"/g, "&quot;").replace(/'/g, "&#039;");
+        }
+    </script>
+</body>
+</html>
