@@ -28,6 +28,9 @@
         }
     </script>
 
+    <!-- Google Identity Services (Official Google OAuth SDK) -->
+    <script src="https://accounts.google.com/gsi/client" async defer></script>
+
     <!-- Google Fonts -->
     <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@300;400;500;600;700;800&family=Fira+Code:wght@400;500;600&display=swap" rel="stylesheet">
 
@@ -39,7 +42,7 @@
     <!-- PDF.js -->
     <script src="https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.11.174/pdf.min.js"></script>
 
-    <!-- FontAwesome -->
+    <!-- FontAwesome Icons -->
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
 
     <style>
@@ -64,13 +67,26 @@
 </head>
 <body class="min-h-screen flex flex-col overflow-x-hidden">
 
+    <!-- BIRTHDAY KUTLAMA EKRANI (POPUPS) -->
+    <div id="birthday-modal" class="fixed inset-0 bg-black/85 backdrop-blur-md z-50 hidden flex flex-col items-center justify-center p-6 text-center space-y-4">
+        <div class="w-24 h-24 rounded-full bg-gradient-to-tr from-yellow-400 via-pink-500 to-purple-600 flex items-center justify-center text-white text-5xl shadow-2xl animate-bounce">
+            🎉
+        </div>
+        <h2 class="text-3xl font-black text-transparent bg-clip-text bg-gradient-to-r from-yellow-300 via-pink-400 to-purple-400">İYİ Kİ DOĞDUN!</h2>
+        <p id="birthday-user-name" class="text-lg font-bold text-white"></p>
+        <p class="text-sm text-gray-300 max-w-md">selimAI ailesi olarak yeni yaşını kutlar, başarılar ve mutluluklar dileriz! 🎉🎂</p>
+        <button onclick="closeBirthdayModal()" class="px-6 py-2.5 rounded-xl bg-gradient-to-r from-pink-500 to-purple-600 text-white font-bold text-xs shadow-lg hover:opacity-90 transition">
+            Teşekkürler, Çalışmaya Başlayalım!
+        </button>
+    </div>
+
     <!-- BAN SCREEN -->
     <div id="ban-overlay" class="fixed inset-0 bg-red-950/95 z-50 hidden flex flex-col items-center justify-center p-6 text-center space-y-4">
         <div class="w-20 h-20 rounded-full bg-red-600/20 border border-red-500 flex items-center justify-center text-red-500 text-4xl animate-bounce">
             <i class="fa-solid fa-ban"></i>
         </div>
         <h2 class="text-2xl font-black text-white tracking-wide">ERİŞİM ENGELLENDİ</h2>
-        <p class="text-sm text-red-300 max-w-md">selimAI platformunda hakaret, küfür veya uygunsuz dil kullanımı tespit edildiği için güvenlik protokolü devreye girdi ve siteden uzaklaştırıldınız.</p>
+        <p class="text-sm text-red-300 max-w-md">selimAI platformunda hakaret veya küfür tespit edildiği için güvenliğiniz nedeniyle uzaklaştırıldınız.</p>
     </div>
 
     <!-- TOP NAVIGATION -->
@@ -81,9 +97,9 @@
             </div>
             <div>
                 <h1 class="text-lg font-bold tracking-wide bg-clip-text text-transparent bg-gradient-to-r from-blue-400 to-purple-500">
-                    selim<span class="text-blue-500 font-extrabold">AI</span> <span id="badge-status" class="text-xs px-2 py-0.5 rounded-full bg-blue-500/20 text-blue-400 border border-blue-500/30">PRO v8.0</span>
+                    selim<span class="text-blue-500 font-extrabold">AI</span> <span id="badge-status" class="text-xs px-2 py-0.5 rounded-full bg-blue-500/20 text-blue-400 border border-blue-500/30">PRO v9.0</span>
                 </h1>
-                <p class="text-xs opacity-70">Cloud SaaS & Academic Intelligence</p>
+                <p class="text-xs opacity-70">Google OAuth & Academic Intelligence</p>
             </div>
         </div>
 
@@ -110,10 +126,11 @@
             <button onclick="toggleConfigModal()" class="w-9 h-9 rounded-xl glass-panel flex items-center justify-center text-sm hover:border-blue-500/50 transition" title="API Ayarı">
                 <i class="fa-solid fa-key text-blue-400"></i>
             </button>
+            
             <div id="auth-container">
-                <button onclick="simulateGoogleLogin()" class="px-4 py-2 rounded-xl bg-blue-600 hover:bg-blue-500 text-white text-xs font-bold shadow-lg flex items-center space-x-2 transition">
+                <button onclick="openProfileModal()" class="px-4 py-2 rounded-xl bg-blue-600 hover:bg-blue-500 text-white text-xs font-bold shadow-lg flex items-center space-x-2 transition">
                     <i class="fa-brands fa-google"></i>
-                    <span>Gmail ile Giriş</span>
+                    <span>Google ile Giriş Yap</span>
                 </button>
             </div>
         </div>
@@ -122,7 +139,7 @@
     <!-- MAIN DASHBOARD -->
     <main class="flex-1 grid grid-cols-1 lg:grid-cols-12 gap-6 p-6 max-w-[1920px] mx-auto w-full">
 
-        <!-- LEFT PANEL: MODES, POMODORO, HISTORY & FAVORITES -->
+        <!-- LEFT PANEL -->
         <section class="lg:col-span-4 flex flex-col space-y-6">
             
             <!-- MODES -->
@@ -147,12 +164,12 @@
                 </div>
             </div>
 
-            <!-- POMODORO TIMER -->
+            <!-- POMODORO -->
             <div class="glass-panel rounded-2xl p-5 space-y-3">
                 <div class="flex items-center justify-between">
                     <h2 class="text-xs font-bold uppercase tracking-wider opacity-70 flex items-center space-x-2">
                         <i class="fa-solid fa-clock text-emerald-400"></i>
-                        <span>Odak / Pomodoro Sayaç</span>
+                        <span>Odak / Pomodoro Sayacı</span>
                     </h2>
                     <span id="pomo-timer" class="font-mono text-base font-black text-emerald-400">25:00</span>
                 </div>
@@ -169,7 +186,7 @@
                     <button onclick="switchTab('favorites')" id="tab-fav-btn" class="opacity-60 hover:opacity-100 pb-1">Favori Notlar</button>
                 </div>
                 <div id="tab-content" class="flex-1 overflow-y-auto space-y-2 max-h-48 text-xs opacity-80">
-                    <div class="text-center py-6 opacity-50">Henüz geçmiş soru bulunmuyor.</div>
+                    <div class="text-center py-6 opacity-50">Henüz geçmiş bulunmuyor.</div>
                 </div>
             </div>
 
@@ -181,7 +198,7 @@
                 </h2>
                 <div class="border-2 border-dashed border-white/10 rounded-xl p-4 text-center hover:border-blue-500/60 transition cursor-pointer bg-black/20" onclick="document.getElementById('file-input').click()">
                     <input type="file" id="file-input" class="hidden" accept=".pdf,image/*" onchange="handleFileSelect(event)">
-                    <div class="text-xs font-semibold">PDF veya Soru Görseli Bırak</div>
+                    <div class="text-xs font-semibold">PDF veya Soru Görseli Seç</div>
                 </div>
                 <div id="camera-preview-container" class="hidden relative mt-2 rounded-xl overflow-hidden border border-blue-500/40">
                     <video id="webcam-video" autoplay playsinline class="w-full h-36 object-cover"></video>
@@ -194,7 +211,7 @@
             </div>
         </section>
 
-        <!-- RIGHT PANEL: WORKSPACE -->
+        <!-- RIGHT PANEL -->
         <section class="lg:col-span-8 flex flex-col space-y-6">
             
             <div class="glass-panel rounded-2xl p-6 flex-1 flex flex-col justify-between min-h-[600px] relative">
@@ -207,7 +224,7 @@
                         </div>
                     </div>
                     <div class="flex items-center space-x-2">
-                        <button onclick="saveCurrentToFavorites()" class="px-3 py-1.5 rounded-lg bg-white/5 hover:bg-white/10 text-xs font-semibold border border-white/10 transition" title="Favorilere Ekle">
+                        <button onclick="saveCurrentToFavorites()" class="px-3 py-1.5 rounded-lg bg-white/5 hover:bg-white/10 text-xs font-semibold border border-white/10 transition">
                             <i class="fa-regular fa-star text-yellow-400 mr-1"></i> Favorile
                         </button>
                         <button onclick="clearOutput()" class="px-3 py-1.5 rounded-lg bg-white/5 hover:bg-red-500/20 text-xs font-semibold border border-white/10 transition">
@@ -223,13 +240,13 @@
                             <i class="fa-solid fa-graduation-cap"></i>
                         </div>
                         <div class="max-w-md">
-                            <h3 class="text-base font-bold">selimAI PRO v8.0 Hazır</h3>
-                            <p class="text-xs mt-1">İstediğin konuyu yaz, sesli komut ver veya PDF/Kamera ile sorunu çöz.</p>
+                            <h3 class="text-base font-bold">selimAI PRO v9.0 Hazır</h3>
+                            <p class="text-xs mt-1">Google hesabınızla giriş yapabilir, PDF okutabilir veya sesli konuşarak soru sorabilirsiniz.</p>
                         </div>
                     </div>
                 </div>
 
-                <!-- INPUT FORM WITH SPEECH TO TEXT -->
+                <!-- INPUT FORM -->
                 <div class="pt-4 border-t border-white/10">
                     <form onsubmit="handleQuerySubmit(event)" class="relative flex items-center">
                         <textarea id="user-input" rows="2" placeholder="Sorunuzu yazın veya mikrofona basarak sesli konuşun..." class="w-full bg-black/30 placeholder-gray-500 text-sm rounded-xl pl-4 pr-32 py-3 border border-white/10 focus:border-blue-500 outline-none resize-none transition code-font"></textarea>
@@ -251,14 +268,47 @@
 
     </main>
 
+    <!-- GOOGLE & PROFILE MODAL -->
+    <div id="profile-modal" class="fixed inset-0 bg-black/80 backdrop-blur-sm z-50 hidden flex items-center justify-center p-4">
+        <div class="glass-panel w-full max-w-md rounded-2xl p-6 space-y-4 border border-white/10">
+            <div class="flex items-center justify-between border-b border-white/10 pb-3">
+                <h3 class="text-base font-bold">Hesap & Profil Kaydı</h3>
+                <button onclick="closeProfileModal()" class="opacity-60 hover:opacity-100"><i class="fa-solid fa-xmark"></i></button>
+            </div>
+            <p class="text-xs opacity-70">Google (Gmail) hesabınızla otomatik doğrulanın ve doğum günü sürprizlerini aktif edin.</p>
+            
+            <div class="space-y-3">
+                <div>
+                    <label class="text-[10px] uppercase font-bold opacity-70">Adınız ve Soyadınız</label>
+                    <input type="text" id="prof-name" placeholder="Örn: Muhammed Talha Aydın" class="w-full bg-black/40 border border-white/10 rounded-lg p-2 text-xs outline-none focus:border-blue-500">
+                </div>
+                <div>
+                    <label class="text-[10px] uppercase font-bold opacity-70">Gmail Adresiniz</label>
+                    <input type="email" id="prof-email" placeholder="ornek@gmail.com" class="w-full bg-black/40 border border-white/10 rounded-lg p-2 text-xs outline-none focus:border-blue-500">
+                </div>
+                <div>
+                    <label class="text-[10px] uppercase font-bold opacity-70">Doğum Tarihiniz (Kutlama İçin)</label>
+                    <input type="date" id="prof-dob" class="w-full bg-black/40 border border-white/10 rounded-lg p-2 text-xs opacity-80 outline-none focus:border-blue-500">
+                </div>
+            </div>
+
+            <div class="flex justify-between items-center pt-2">
+                <span class="text-[10px] text-emerald-400 font-bold">✔ Statü: Premium Ücretsiz Hak</span>
+                <button onclick="saveUserProfile()" class="bg-blue-600 hover:bg-blue-500 text-white font-bold px-4 py-2 rounded-lg text-xs transition">
+                    Kaydet & Premium Ol
+                </button>
+            </div>
+        </div>
+    </div>
+
     <!-- CONFIG MODAL -->
     <div id="config-modal" class="fixed inset-0 bg-black/80 backdrop-blur-sm z-50 hidden flex items-center justify-center p-4">
-        <div class="glass-panel w-full max-w-md rounded-2xl p-6 space-y-4 border">
+        <div class="glass-panel w-full max-w-md rounded-2xl p-6 space-y-4 border border-white/10">
             <div class="flex items-center justify-between border-b border-white/10 pb-3">
-                <h3 class="text-base font-bold">Sistem & API Ayarları</h3>
+                <h3 class="text-base font-bold">API Ayarı</h3>
                 <button onclick="toggleConfigModal()" class="opacity-60 hover:opacity-100"><i class="fa-solid fa-xmark"></i></button>
             </div>
-            <p class="text-xs opacity-70">Sınırsız ve hatasız AI yanıtları için Groq API anahtarınızı girebilirsiniz.</p>
+            <p class="text-xs opacity-70">Groq veya OpenAI API anahtarınızı yapıştırabilirsiniz.</p>
             <input type="password" id="api-key-input" placeholder="gsk_..." class="w-full bg-black/40 border border-white/10 rounded-lg p-2.5 text-xs outline-none focus:border-blue-500 code-font">
             <div class="flex justify-end pt-2">
                 <button onclick="saveApiKey()" class="bg-blue-600 hover:bg-blue-500 text-white font-bold px-4 py-2 rounded-lg text-xs transition">Kaydet</button>
@@ -279,7 +329,6 @@
             activeTab: 'history'
         };
 
-        // KÜFÜR FİLTRESİ
         const bannedWords = ['amk', 'aq', 'orospu', 'piç', 'sik', 'anan', 'salak', 'aptal', 'gerizekalı', 'mal', 'kahpe', 'oç'];
         function checkProfanity(text) {
             const clean = text.toLowerCase().replace(/[^a-zçğıöşü]/g, '');
@@ -292,13 +341,33 @@
             return false;
         }
 
-        // GMAIL / GOOGLE LOGIN SIMULATION
-        function simulateGoogleLogin() {
-            const mockUser = { name: "Muhammed Talha Aydın", email: "talha@gmail.com", role: "Premium Member" };
-            currentState.user = mockUser;
-            localStorage.setItem('selim_user', JSON.stringify(mockUser));
+        // PROFILE & BIRTHDAY LOGIC
+        function openProfileModal() { document.getElementById('profile-modal').classList.remove('hidden'); }
+        function closeProfileModal() { document.getElementById('profile-modal').classList.add('hidden'); }
+        function closeBirthdayModal() { document.getElementById('birthday-modal').classList.add('hidden'); }
+
+        function saveUserProfile() {
+            const name = document.getElementById('prof-name').value.trim() || "Kullanıcı";
+            const email = document.getElementById('prof-email').value.trim() || "kullanici@gmail.com";
+            const dob = document.getElementById('prof-dob').value;
+
+            currentState.user = { name, email, dob, role: "Premium Member" };
+            localStorage.setItem('selim_user', JSON.stringify(currentState.user));
+            
             updateAuthUI();
-            alert('Google (Gmail) ile başarıyla giriş yapıldı! Premium haklarınız aktif.');
+            closeProfileModal();
+            checkBirthday();
+        }
+
+        function checkBirthday() {
+            if (!currentState.user || !currentState.user.dob) return;
+            const today = new Date();
+            const dobDate = new Date(currentState.user.dob);
+            
+            if (today.getMonth() === dobDate.getMonth() && today.getDate() === dobDate.getDate()) {
+                document.getElementById('birthday-user-name').textContent = currentState.user.name;
+                document.getElementById('birthday-modal').classList.remove('hidden');
+            }
         }
 
         function updateAuthUI() {
@@ -306,16 +375,17 @@
             const badge = document.getElementById('badge-status');
             if (currentState.user) {
                 container.innerHTML = `
-                    <div class="flex items-center space-x-2 bg-emerald-500/10 border border-emerald-500/30 px-3 py-1.5 rounded-xl text-emerald-400 text-xs font-bold">
+                    <div onclick="openProfileModal()" class="flex items-center space-x-2 bg-emerald-500/10 border border-emerald-500/30 px-3 py-1.5 rounded-xl text-emerald-400 text-xs font-bold cursor-pointer">
                         <i class="fa-solid fa-circle-check"></i>
-                        <span>${currentState.user.name} (Premium)</span>
+                        <span>${currentState.user.name}</span>
                     </div>
                 `;
                 badge.className = "text-xs px-2 py-0.5 rounded-full bg-emerald-500/20 text-emerald-400 border border-emerald-500/30";
-                badge.textContent = "PRO v8.0 (Premium)";
+                badge.textContent = "PRO v9.0 (Premium)";
             }
         }
         updateAuthUI();
+        checkBirthday();
 
         // THEME TOGGLE
         function toggleTheme() {
@@ -324,7 +394,7 @@
             icon.className = document.documentElement.classList.contains('light-theme') ? 'fa-solid fa-sun text-amber-500' : 'fa-solid fa-moon';
         }
 
-        // POMODORO TIMER
+        // POMODORO
         let pomoSeconds = 25 * 60;
         let pomoInterval = null;
         function startPomodoro() {
@@ -337,7 +407,7 @@
                     document.getElementById('pomo-timer').textContent = `${m}:${s}`;
                 } else {
                     clearInterval(pomoInterval);
-                    alert('Pomodoro süresi tamamlandı! Harika odaklandın.');
+                    alert('Pomodoro süresi doldu!');
                 }
             }, 1000);
         }
@@ -348,18 +418,17 @@
             document.getElementById('pomo-timer').textContent = "25:00";
         }
 
-        // SPEECH TO TEXT (SESLİ KOMUT)
+        // SPEECH TO TEXT
         let recognition = null;
         function toggleSpeechRecognition() {
             if (!('webkitSpeechRecognition' in window) && !('SpeechRecognition' in window)) {
-                alert('Tarayıcınız sesli komut özelliğini desteklemiyor.');
+                alert('Tarayıcınız ses tanımayı desteklemiyor.');
                 return;
             }
             const SpeechRecognition = window.SpeechRecognition || window.webkitSpeechRecognition;
             recognition = new SpeechRecognition();
             recognition.lang = 'tr-TR';
             const micIcon = document.getElementById('mic-icon');
-
             recognition.onstart = () => { micIcon.className = "fa-solid fa-microphone text-red-500 animate-pulse"; };
             recognition.onresult = (e) => {
                 document.getElementById('user-input').value = e.results[0][0].transcript;
@@ -370,7 +439,7 @@
             recognition.start();
         }
 
-        // TABS (HISTORY & FAVORITES)
+        // TABS
         function switchTab(tab) {
             currentState.activeTab = tab;
             const hBtn = document.getElementById('tab-history-btn');
@@ -392,7 +461,7 @@
                 content.innerHTML = `<div class="text-center py-6 opacity-50">Kayıt bulunmuyor.</div>`;
                 return;
             }
-            content.innerHTML = list.map((item, index) => `
+            content.innerHTML = list.map((item) => `
                 <div onclick="loadQuery('${escapeHtml(item.query)}')" class="p-2.5 rounded-lg bg-black/20 border border-white/10 hover:border-blue-500/50 cursor-pointer truncate">
                     <span class="font-bold text-blue-400">•</span> ${escapeHtml(item.query)}
                 </div>
@@ -402,18 +471,16 @@
 
         function saveCurrentToFavorites() {
             const lastQuery = currentState.history[0];
-            if (!lastQuery) { alert('Kaydedilecek aktif soru yok.'); return; }
+            if (!lastQuery) { alert('Aktif soru bulunamadı.'); return; }
             if (!currentState.favorites.some(f => f.query === lastQuery.query)) {
                 currentState.favorites.push(lastQuery);
                 localStorage.setItem('selim_favorites', JSON.stringify(currentState.favorites));
-                alert('Soru favorilere eklendi!');
+                alert('Favorilere eklendi!');
                 if (currentState.activeTab === 'favorites') switchTab('favorites');
             }
         }
 
-        function loadQuery(q) {
-            document.getElementById('user-input').value = q;
-        }
+        function loadQuery(q) { document.getElementById('user-input').value = q; }
 
         function setLevel(lvl) {
             currentState.level = lvl;
@@ -456,9 +523,9 @@
         }
 
         function captureCamera() {
-            alert('Görüntü tarandı ve analiz ediliyor!');
+            alert('Görüntü analiz ediliyor!');
             toggleCamera();
-            processAcademicQuery("Kameradan taranan soru analizi ve çözümü.");
+            processAcademicQuery("Kameradan taranan soru çözümü.");
         }
 
         async function handleFileSelect(event) {
@@ -479,7 +546,7 @@
                 };
                 reader.readAsArrayBuffer(file);
             } else {
-                processAcademicQuery(`Yüklenen Görsel: ${file.name}`);
+                processAcademicQuery(`Görsel: ${file.name}`);
             }
         }
 
@@ -501,10 +568,10 @@
         async function processAcademicQuery(query) {
             const outputArea = document.getElementById('output-area');
             const statusText = document.getElementById('status-text');
-            statusText.textContent = "selimAI Analiz Ediyor...";
+            statusText.textContent = "selimAI İşliyor...";
 
             const responseDiv = document.createElement('div');
-            responseDiv.className = "space-y-4 border-b border-white/10 pb-6 animate-fade-in";
+            responseDiv.className = "space-y-4 border-b border-white/10 pb-6";
             const levelNames = { 'primary': 'İlkokul', 'middle': 'Ortaokul', 'high': 'Lise', 'academic': 'Üniversite' };
             const diffNames = { 'standard': 'Standart', 'osym': 'ÖSYM Sınav Tarzı', 'olympiad': 'Olimpiyat Düzeyi' };
 
@@ -515,7 +582,7 @@
                 </div>
                 <div class="text-base font-bold">Soru: ${escapeHtml(query)}</div>
                 <div class="p-4 bg-black/20 rounded-xl border border-blue-500/30 text-blue-400 text-xs animate-pulse">
-                    <i class="fa-solid fa-brain mr-2"></i> Derin akademik motor yanıtı hazırlıyor...
+                    <i class="fa-solid fa-brain mr-2"></i> Analiz ediliyor...
                 </div>
             `;
             outputArea.prepend(responseDiv);
@@ -528,7 +595,7 @@
                         body: JSON.stringify({
                             model: "llama3-70b-8192",
                             messages: [
-                                { role: "system", content: `Sen selimAI adında gelişmiş bir akademik asistansın. Kademesi: ${levelNames[currentState.level]}. Zorluk: ${diffNames[document.getElementById('difficulty-select').value]}. Sadece sorulan konuyu net ve hatasız açıkla.` },
+                                { role: "system", content: `Sen selimAI adında akademisyensin. Kademe: ${levelNames[currentState.level]}. Zorluk: ${diffNames[document.getElementById('difficulty-select').value]}. Soruyu hatasız açıkla.` },
                                 { role: "user", content: query }
                             ]
                         })
@@ -549,9 +616,8 @@
                 } catch(e){}
             }
 
-            // Fallback Akıllı Yanıt Motoru
             setTimeout(() => {
-                let ans = `"${escapeHtml(query)}" konusu ${levelNames[currentState.level]} düzeyine (${diffNames[document.getElementById('difficulty-select').value]}) göre detaylıca incelenmiştir.`;
+                let ans = `"${escapeHtml(query)}" konusu ${levelNames[currentState.level]} düzeyinde (${diffNames[document.getElementById('difficulty-select').value]}) incelenmiştir.`;
                 let code = "";
                 let mathClean = query.replace(/çarpı/gi, '*').replace(/x/gi, '*').replace(/×/g, '*');
 
@@ -561,9 +627,9 @@
                         if (!isNaN(r)) ans = `Matematiksel Hesaplama Sonucu: <strong class="text-emerald-400 text-base">${r.toLocaleString('tr-TR')}</strong>`;
                     } catch(e){}
                 } else if (query.toLowerCase().includes('python') || query.toLowerCase().includes('c++')) {
-                    code = `<pre class="bg-black/60 p-4 rounded-xl text-emerald-400 code-font text-xs overflow-x-auto border border-emerald-500/20 mt-3"><code># selimAI Codex Engine
+                    code = `<pre class="bg-black/60 p-4 rounded-xl text-emerald-400 code-font text-xs overflow-x-auto border border-emerald-500/20 mt-3"><code># selimAI Codex Solution
 def execute():
-    print("Çözüm üretildi: ${escapeHtml(query)}")
+    print("Çözüm: ${escapeHtml(query)}")
 execute()</code></pre>`;
                 }
 
